@@ -17,7 +17,7 @@ public class Member {
 
     final private String email;
 
-    final private LocalDate birthDay;
+    final private LocalDate birthday;
 
     final private LocalDateTime createdAt;
 
@@ -26,7 +26,7 @@ public class Member {
     public Member(Long id, String nickname, String email, LocalDate birthDay, LocalDateTime createdAt) {
         this.id = id;
         this.email = Objects.requireNonNull(email);
-        this.birthDay = Objects.requireNonNull(birthDay);
+        this.birthday = Objects.requireNonNull(birthDay);
 
         validateNickname(nickname);
         this.nickname = Objects.requireNonNull(nickname);

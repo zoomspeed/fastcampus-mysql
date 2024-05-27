@@ -37,7 +37,7 @@ public class MemberRepository {
                 .id(resultSet.getLong("id"))
                 .email(resultSet.getString("email"))
                 .nickname(resultSet.getString("nickname"))
-                .birthDay(resultSet.getObject("birthday", LocalDate.class))
+                .birthday(resultSet.getObject("birthday", LocalDate.class))
                 .createdAt(resultSet.getObject("createdAt", LocalDateTime.class))
                 .build();
         var member = namedParameterJdbcTemplate.queryForObject(sql, param, rowMapper);
@@ -66,13 +66,15 @@ public class MemberRepository {
                 .id(id)
                 .email(member.getEmail())
                 .nickname(member.getNickname())
-                .birthDay(member.getBirthDay())
+                .birthday(member.getBirthday())
                 .createdAt(member.getCreatedAt())
                 .build();
     }
 
     private Member update(Member member) {
-        // TODO: implemented
+        var sql = String.format("UPDATE %s set email = :email, nickname = :nickname, birthday = :birthday WHERE id = :id", TABLE);
+        SqlParameterSource params = new BeanPropertySqlParameterSource(member);
+        namedParameterJdbcTemplate.update(sql, params);
         return member;
     }
 }
