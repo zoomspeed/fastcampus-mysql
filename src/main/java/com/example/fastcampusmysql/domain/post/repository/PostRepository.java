@@ -1,6 +1,6 @@
 package com.example.fastcampusmysql.domain.post.repository;
 
-import com.example.fastcampusmysql.domain.PageHelper;
+import com.example.fastcampusmysql.util.PageHelper;
 import com.example.fastcampusmysql.domain.member.entity.Member;
 import com.example.fastcampusmysql.domain.post.entity.DailyPostCount;
 import com.example.fastcampusmysql.domain.post.entity.DailyPostCountRequest;
@@ -8,9 +8,7 @@ import com.example.fastcampusmysql.domain.post.entity.Post;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -35,12 +33,12 @@ public class PostRepository {
                 resultSet.getObject("createdDate", LocalDate.class),
                 resultSet.getLong("count")
             );
-    final static RowMapper<Member> ROW_MAPPER = (ResultSet resultSet, int rowNum) -> Member
+    final static RowMapper<Post> ROW_MAPPER = (ResultSet resultSet, int rowNum) -> Post
             .builder()
             .id(resultSet.getLong("id"))
-            .email(resultSet.getString("memberId"))
-            .nickname(resultSet.getString("contents"))
-            .birthday(resultSet.getObject("createdDate", LocalDate.class))
+            .memberId(resultSet.getLong("memberId"))
+            .contents(resultSet.getString("contents"))
+            .createdDate(resultSet.getObject("createdDate", LocalDate.class))
             .createdAt(resultSet.getObject("createdAt", LocalDateTime.class))
             .build();
 
@@ -73,6 +71,37 @@ public class PostRepository {
 
         var posts = namedParameterJdbcTemplate.query(sql, params, ROW_MAPPER);
         return new PageImpl(posts, pageable, getCount(memberId));
+    }
+
+    public List<Post> findAllByMemberIdAndOrderByIdDesc(Long memberId, int size) {
+        var sql = String.format("""
+                SELECT *
+                FROM %s
+                WHERE memberId = :memberId
+                ORDER BY id desc
+                LIMIT :size
+                """, TABLE);
+        var params = new MapSqlParameterSource()
+                .addValue("memberId", memberId)
+                .addValue("size", size)
+                ;
+        return namedParameterJdbcTemplate.query(sql, params, ROW_MAPPER);
+    }
+
+    public List<Post> findAllByMemberIdAndOrderByIdDesc(Long id, Long memberId, int size) {
+        var sql = String.format("""
+                SELECT *
+                FROM %s
+                WHERE memberId = :memberId and id < :id
+                ORDER BY id desc
+                LIMIT :size
+                """, TABLE);
+        var params = new MapSqlParameterSource()
+                .addValue("memberId", memberId)
+                .addValue("id", id)
+                .addValue("size", size)
+                ;
+        return namedParameterJdbcTemplate.query(sql, params, ROW_MAPPER);
     }
 
     private Long getCount(Long memberId) {
