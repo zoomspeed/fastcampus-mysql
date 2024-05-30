@@ -21,7 +21,7 @@ public class Member {
 
     final private LocalDateTime createdAt;
 
-    final private static Long NAME_MAX_LENGTH = 10L;
+    final private static Long NAME_MAX_LENGTH = 100L;
 
     public Member(Long id, String nickname, String email, LocalDate birthDay, LocalDateTime createdAt) {
         this.id = id;
