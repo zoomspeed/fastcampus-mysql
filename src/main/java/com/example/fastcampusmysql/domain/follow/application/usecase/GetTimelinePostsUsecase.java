@@ -2,8 +2,10 @@ package com.example.fastcampusmysql.domain.follow.application.usecase;
 
 import com.example.fastcampusmysql.domain.follow.entity.Follow;
 import com.example.fastcampusmysql.domain.follow.service.FollowReadService;
-import com.example.fastcampusmysql.domain.member.dto.MemberDto;
-import com.example.fastcampusmysql.domain.member.service.MemberReadService;
+import com.example.fastcampusmysql.domain.post.entity.Post;
+import com.example.fastcampusmysql.domain.post.service.PostReadService;
+import com.example.fastcampusmysql.util.CursorRequest;
+import com.example.fastcampusmysql.util.PageCursor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,17 +13,17 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class GetFollowingMemberUsercase {
-    final private MemberReadService memberReadService;
+public class GetTimelinePostsUsecase {
     final private FollowReadService followReadService;
+    final private PostReadService postReadService;
 
-    public List<MemberDto> execute(Long memberId) {
+    public PageCursor<Post> execute(Long memberId, CursorRequest cursorRequest) {
         /*
-            1. fromMemberId = memberId -> Follow list
-            2. 1번을 순회하면서 회원정보를 찾으면 된다!
+            1. memberId -> follow 조회
+            2. 1번 결과로 게시물 조회
          */
         var followings = followReadService.getFollowings(memberId);
         var followingMemberIds = followings.stream().map(Follow::getToMemberId).toList();
-        return memberReadService.getMembers(followingMemberIds);
+        return postReadService.getPosts(followingMemberIds, cursorRequest);
     }
 }
