@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @RequiredArgsConstructor
 @Repository
 public class PostRepository {
@@ -90,6 +91,21 @@ public class PostRepository {
                 .addValue("memberIds", memberIds)
                 .addValue("size", size)
                 ;
+        return namedParameterJdbcTemplate.query(sql, params, ROW_MAPPER);
+    }
+
+    public List<Post> findAllByInId(List<Long> ids) {
+        if(ids.isEmpty()) {
+            return List.of();
+        }
+
+        var sql = String.format("""
+                SELECT *
+                FROM %s
+                WHERE id in (:ids)
+                """, TABLE);
+        var params = new MapSqlParameterSource()
+                .addValue("ids", ids);
         return namedParameterJdbcTemplate.query(sql, params, ROW_MAPPER);
     }
 
