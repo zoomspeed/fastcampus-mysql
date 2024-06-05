@@ -5,6 +5,7 @@ import com.example.fastcampusmysql.domain.post.entity.Post;
 import com.example.fastcampusmysql.domain.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -19,5 +20,13 @@ public class PostWriteService {
                 .build();
 
         return postRepository.save(post).getId();
+    }
+
+    //잠금획들을 위해 transactional을 반드시 걸어줘야 한다.
+    @Transactional
+    public void likePost(Long postId) {
+        var post = postRepository.findById(postId, true).orElseThrow();
+        post.incrementLikeCount();
+        postRepository.save(post);
     }
 }
