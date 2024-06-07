@@ -1,8 +1,10 @@
 package com.example.fastcampusmysql.domain.post.service;
 
+import com.example.fastcampusmysql.domain.member.dto.PostDto;
 import com.example.fastcampusmysql.domain.post.entity.DailyPostCount;
 import com.example.fastcampusmysql.domain.post.entity.DailyPostCountRequest;
 import com.example.fastcampusmysql.domain.post.entity.Post;
+import com.example.fastcampusmysql.domain.post.repository.PostLikeRepository;
 import com.example.fastcampusmysql.domain.post.repository.PostRepository;
 import com.example.fastcampusmysql.util.CursorRequest;
 import com.example.fastcampusmysql.util.PageCursor;
@@ -18,6 +20,7 @@ import java.util.List;
 @Service
 public class PostReadService {
     final private PostRepository postRepository;
+    final private PostLikeRepository postLikeRepository;
 
     public List<DailyPostCount> getDailyPostCount(DailyPostCountRequest request) {
         /*
@@ -30,8 +33,23 @@ public class PostReadService {
         return postRepository.groupByCreatedDate(request);
     }
 
-    public Page<Post> getPosts(Long memberId, Pageable pageRequest) {
-        return postRepository.findAllByMemberId(memberId, pageRequest);
+    public Page<PostDto> getPosts(Long memberId, Pageable pageRequest) {
+        return postRepository.findAllByMemberId(memberId, pageRequest).map(this::toDto);
+    }
+
+    //mapper의 로직은 파라미터로 빼는게 좋음
+    // 간단한 dto작업에서 (count query 같은게 나가면 예상치 못한 결과가 나올수있음)
+    private PostDto toDto(Post post) {
+        return new PostDto(
+                post.getId(),
+                post.getContents(),
+                post.getCreatedAt(),
+                postLikeRepository.count(post.getId())
+        );
+    }
+
+    public Post getPost(Long postId) {
+        return postRepository.findById(postId, false).orElseThrow();
     }
 
     public PageCursor<Post> getPosts(Long memberId, CursorRequest cursorRequest) {

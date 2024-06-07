@@ -36,7 +36,7 @@ public class TimelineRepository {
             return insert(timeline);
         }
 
-        throw new UnsupportedOperationException("Post는 갱신을 지원하지 않습니다.");
+        throw new UnsupportedOperationException("Timeline은 갱신을 지원하지 않습니다.");
     }
 
     public List<Timeline> findAllByMemberIdAndOrderByIdDesc(Long memberId, int size) {
